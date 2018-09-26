@@ -2,7 +2,6 @@ require 'tmg'
 require 'thor'
 require 'gems'
 require 'colorize'
-require 'ruby-progressbar'
 
 module Tmg
   class CLI < Thor
