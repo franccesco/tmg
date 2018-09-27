@@ -12,12 +12,24 @@ module Tmg
   # tmg info [GEM]      # Shows information about a specific gem.
   # tmg list            # Show a list of your published gems.
   # tmg login           # Request access to RubyGems.org
+  ##
+  # Colorize:
+  # Yellow  = Warnings || Things that needs your attention
+  # Green   = Notice || Messages of interest
+  # White   = Regular strings
+  # Red     = Errors || Really important things. I also like the red banner.
   class CLI < Thor
     default_task :list
+    @@credentials_file = "#{Dir.home}/.gem/credentials"
 
     desc 'list', 'Show a list of your published gems.'
+    # Shows a list of your gems published on RubyGems.org
+    # If forces you to login first if it's unable to find the credentials
+    # under your home folder. After that, it retrieves a summary consisting
+    # in the most relevant information only such as info, downloads, version,
+    # and homepage.
     def list
-      unless File.file?("#{Dir.home}/.gem/credentials")
+      unless File.file?(@@credentials_file)
         login
       end
       gems = Gems.gems
@@ -41,10 +53,9 @@ module Tmg
 
     desc 'login', 'Request access to RubyGems.org'
     def login
-      credentials_file = "#{Dir.home}/.gem/credentials"
-      if File.file?(credentials_file)
+      if File.file?(@@credentials_file)
         puts 'Credentials file found!'.bold
-        unless yes?("Overwrite #{credentials_file}? |no|".bold.yellow)
+        unless yes?("Overwrite #{@@credentials_file}? |no|".bold.yellow)
           puts "Aborted.".red.bold
           exit
         end
@@ -62,7 +73,7 @@ module Tmg
         puts 'Access Denied.'.red.bold
         exit
       else
-        puts "Credentials written to #{credentials_file}".green.bold
+        puts "Credentials written to #{@@credentials_file}".green.bold
       end
     end
 
