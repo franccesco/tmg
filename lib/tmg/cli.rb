@@ -99,7 +99,7 @@ module Tmg
           end
         end
       else
-        puts "\s⤷ No dependencies".yellow.bold
+        puts "\s⤷ No dependencies".yellow.bold if options[:dependencies]
       end
       puts
     end
