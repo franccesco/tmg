@@ -11,6 +11,9 @@ module Tmg
 
     desc 'list', 'Show a list of your published gems.'
     def list
+      unless File.file?("#{Dir.home}/.gem/credentials")
+        login
+      end
       gems = Gems.gems
       gems.each do |gem|
         gem_name = gem['name']
@@ -19,6 +22,7 @@ module Tmg
         info = gem['info']
         homepage = gem['homepage_uri']
 
+        puts
         puts gem_name.upcase.yellow.bold
         puts '—'.yellow.bold * gem_name.length
         puts '⤷ Info: '.green.bold      + info
@@ -36,7 +40,7 @@ module Tmg
         puts 'Credentials file found!'.bold
         unless yes?("Overwrite #{credentials_file}? |no|".bold.yellow)
           puts "Aborted.".red.bold
-          exit          
+          exit
         end
       end
 
@@ -50,6 +54,7 @@ module Tmg
         Tmg.write_credentials(username, password)
       rescue RuntimeError => e
         puts 'Access Denied.'.red.bold
+        exit
       else
         puts "Credentials written to #{credentials_file}".green.bold
       end
