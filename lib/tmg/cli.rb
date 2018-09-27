@@ -25,8 +25,14 @@ module Tmg
     no_commands do
       # Non-CLI method to display gem information without duplicating code
       # on the other CLI methods.
-      def display_gem_info(mygems = true, deps = false, gems = nil)
-        gems = mygems ? Gems.gems : [Gems.info(gems)]
+      def display_gem_info(mygems = true, deps = false, gems = nil, user = nil)
+        if mygems
+          gems = Gems.gems
+        elsif user
+          gems = Gems.gems(user)
+        else
+          gems = [Gems.info(gems)]
+        end
 
         gems.each do |gem|
           authors           = gem['authors']
@@ -48,7 +54,7 @@ module Tmg
           puts '⤷ Downloads: '.green.bold + downloads.to_s
           puts '⤷ Version: '.green.bold   + version
           puts '⤷ Gem page: '.green.bold  + gem_page unless mygems
-          puts '⤷ Homepage: '.green.bold  + homepage
+          puts '⤷ Homepage: '.green.bold  + homepage if homepage
 
           if deps
             if runtime_deps.empty? && development_deps.empty?
@@ -71,7 +77,6 @@ module Tmg
               end
             end
           end
-          puts
         end
       end
     end
@@ -142,6 +147,17 @@ module Tmg
     # runtime dependencies and development dependencies.
     def info(gem)
       display_gem_info(false, options[:dependencies], gem)
+    end
+
+    desc 'user [USERNAME]', 'Shows gems owned by another username'
+    method_option :dependencies,
+                  aliases: '-d',
+                  type: :boolean,
+                  desc: 'Show dependencies.'
+    # Displayes the gems that belongs to another user, optionally flag
+    # the dependencies (runtime and development)
+    def user(username)
+      display_gem_info(false, options[:dependencies], nil, username)
     end
 
     desc 'about', 'Displays version number and information.'
