@@ -6,6 +6,12 @@ require 'colorize'
 trap('INT') { puts "\nAborted".red.bold; exit }
 
 module Tmg
+  # Commands:
+  # tmg about           # Displays version number and information.
+  # tmg help [COMMAND]  # Describe available commands or one specific command
+  # tmg info [GEM]      # Shows information about a specific gem.
+  # tmg list            # Show a list of your published gems.
+  # tmg login           # Request access to RubyGems.org
   class CLI < Thor
     default_task :list
 
@@ -52,13 +58,12 @@ module Tmg
 
       begin
         Tmg.write_credentials(username, password)
-      rescue RuntimeError => e
+      rescue RuntimeError
         puts 'Access Denied.'.red.bold
         exit
       else
         puts "Credentials written to #{credentials_file}".green.bold
       end
-
     end
 
     desc 'info [GEM]', 'Shows information about a specific gem.'
@@ -87,24 +92,22 @@ module Tmg
       puts '⤷ Gem page: '.green.bold            + gem_page
       puts '⤷ Homepage: '.green.bold            + homepage
 
-      unless dependencies['runtime'].empty? and dependencies['runtime'].empty?      
-        if options[:dependencies]
-          puts "⤷ Dependencies".yellow.bold
-          unless dependencies['runtime'].empty?
-            puts "\s⤷ Runtime dependencies".yellow.bold
-            dependencies['runtime'].each do |dep|
-              puts "\s\s⤷ #{dep['name']} ".green.bold + dep['requirements']
-            end
-          end
-          unless dependencies['development'].empty?
-            puts "\s⤷ Development dependencies".yellow.bold
-            dependencies['development'].each do |dep|
-              puts "\s\s⤷ #{dep['name']} ".green.bold + dep['requirements']
-            end
+      if dependencies['runtime'].empty? && dependencies['runtime'].empty?
+        puts "\s⤷ No dependencies".yellow.bold if options[:dependencies]
+      elsif options[:dependencies]
+        puts "⤷ Dependencies".yellow.bold
+        unless dependencies['runtime'].empty?
+          puts "\s⤷ Runtime dependencies".yellow.bold
+          dependencies['runtime'].each do |dep|
+            puts "\s\s⤷ #{dep['name']} ".green.bold + dep['requirements']
           end
         end
-      else
-        puts "\s⤷ No dependencies".yellow.bold if options[:dependencies]
+        unless dependencies['development'].empty?
+          puts "\s⤷ Development dependencies".yellow.bold
+          dependencies['development'].each do |dep|
+            puts "\s\s⤷ #{dep['name']} ".green.bold + dep['requirements']
+          end
+        end
       end
       puts
     end
