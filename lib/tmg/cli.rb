@@ -6,54 +6,131 @@ require 'colorize'
 trap('INT') { puts "\nAborted".red.bold; exit }
 
 module Tmg
+  # Commands:
+  # tmg about           # Displays version number and information.
+  # tmg help [COMMAND]  # Describe available commands or one specific command
+  # tmg info [GEM]      # Shows information about a specific gem.
+  # tmg list            # Show a list of your published gems.
+  # tmg login           # Request access to RubyGems.org
+  ##
+  # Colorize:
+  # Yellow  = Warnings || Things that needs your attention
+  # Green   = Notice || Messages of interest
+  # White   = Regular strings
+  # Red     = Errors || Really important things. Red banner looks cool though.
   class CLI < Thor
     default_task :list
+    @@credentials_file = "#{Dir.home}/.gem/credentials"
 
-    desc 'list', 'Show a list of your published gems.'
-    def list
-      gems = Gems.gems
-      gems.each do |gem|
-        gem_name = gem['name']
-        downloads = gem['downloads']
-        version = gem['version']
-        info = gem['info']
-        homepage = gem['homepage_uri']
+    no_commands do
+      # Non-CLI method to display gem information without duplicating code
+      # on the other CLI methods.
+      def display_gem_info(mygems = true, deps = false, gems = nil)
+        gems = mygems ? Gems.gems : [Gems.info(gems)]
 
-        puts gem_name.upcase.yellow.bold
-        puts '—'.yellow.bold * gem_name.length
-        puts '⤷ Info: '.green.bold      + info
-        puts '⤷ Downloads: '.green.bold + downloads.to_s
-        puts '⤷ Version: '.green.bold   + version
-        puts '⤷ Homepage: '.green.bold  + homepage
-        puts
+        gems.each do |gem|
+          authors           = gem['authors']
+          gem_name          = gem['name']
+          downloads         = gem['downloads']
+          version           = gem['version']
+          info              = gem['info']
+          gem_page          = gem['project_uri']
+          homepage          = gem['homepage_uri']
+          dependencies      = gem['dependencies']
+          runtime_deps      = dependencies['runtime']
+          development_deps  = dependencies['development']
+
+          puts
+          puts gem_name.upcase.yellow.bold
+          puts '—'.yellow.bold * gem_name.length
+          puts '⤷ Authors: '.green.bold   + authors unless mygems
+          puts '⤷ Info: '.green.bold      + info
+          puts '⤷ Downloads: '.green.bold + downloads.to_s
+          puts '⤷ Version: '.green.bold   + version
+          puts '⤷ Gem page: '.green.bold  + gem_page unless mygems
+          puts '⤷ Homepage: '.green.bold  + homepage
+
+          if deps
+            if runtime_deps.empty? && development_deps.empty?
+              puts "⤷ No dependencies".yellow.bold
+            else
+              puts "⤷ Dependencies".yellow.bold
+            end
+            unless runtime_deps.empty?
+              puts "\s⤷ Runtime dependencies".yellow.bold
+
+              dependencies['runtime'].each do |dep|
+                puts "\s\s⤷ #{dep['name']} ".green.bold + dep['requirements']
+              end
+            end
+            unless development_deps.empty?
+              puts "\s⤷ Development dependencies".yellow.bold
+
+              dependencies['development'].each do |dep|
+                puts "\s\s⤷ #{dep['name']} ".green.bold + dep['requirements']
+              end
+            end
+          end
+          puts
+        end
       end
     end
 
+    desc 'list', 'Show a list of your published gems.'
+    method_option :dependencies,
+                  aliases: '-d',
+                  type: :boolean,
+                  desc: 'Show dependencies.'
+    # Shows a list of your gems published on RubyGems.org
+    # If forces you to login first if it's unable to find the credentials
+    # under your home folder. After that, it retrieves a summary consisting
+    # in the most relevant information only such as info, downloads, version,
+    # and homepage.
+    def list
+      unless File.file?(@@credentials_file)
+        login
+      end
+      display_gem_info(true, options[:dependencies])
+    end
+
     desc 'login', 'Request access to RubyGems.org'
+    # Retrieves the API key for the user and writes it to ~/.gem/credentials.
+    # It also makes sure to set the permissions to 0600 as adviced on the
+    # RubyGems.org webpage. If the credentials file is on the system,
+    # then it should warn the user before overwriting the file.
     def login
-      credentials_file = "#{Dir.home}/.gem/credentials"
-      if File.file?(credentials_file)
+      # check if file credential exists
+      if File.file?(@@credentials_file)
         puts 'Credentials file found!'.bold
-        unless yes?("Overwrite #{credentials_file}? |no|".bold.yellow)
+        unless yes?("Overwrite #{@@credentials_file}? |no|".bold.yellow)
           puts "Aborted.".red.bold
-          exit          
+          exit
         end
       end
 
+      # Ask for username and password, mask the password and make it
+      # green if it's the correct password, red if the access was denied.
+      # Aborts if the password is empty.
       puts 'Write your username and password for ' + 'RubyGems.org'.yellow.bold
       username = ask('Username:'.yellow.bold)
       password = ask('Password:'.yellow.bold, echo: false)
       (puts "Aborted.".red.bold; exit) if password.empty?
-      puts '*'.green * username.length
+
+      # fakes a masked password as long as the username,
+      # for style purposes only.
+      masked_password = '*' * username.length
+      print masked_password unless options[:show_password]
 
       begin
         Tmg.write_credentials(username, password)
-      rescue RuntimeError => e
+      rescue RuntimeError
+        puts "\b" * masked_password.length + masked_password.red.bold
         puts 'Access Denied.'.red.bold
+        exit
       else
-        puts "Credentials written to #{credentials_file}".green.bold
+        puts "\b" * masked_password.length + masked_password.green.bold
+        puts "Credentials written to #{@@credentials_file}".green.bold
       end
-
     end
 
     desc 'info [GEM]', 'Shows information about a specific gem.'
@@ -61,50 +138,15 @@ module Tmg
                   aliases: '-d',
                   type: :boolean,
                   desc: 'Show dependencies.'
+    # Displays information about a gem, optionally displaying
+    # runtime dependencies and development dependencies.
     def info(gem)
-      gem = Gems.info(gem)
-      authors = gem['authors']
-      gem_name = gem['name']
-      info = gem['info']
-      downloads = gem['downloads']
-      version = gem['version']
-      gem_page = gem['project_uri']
-      homepage = gem['homepage_uri']
-      dependencies = gem['dependencies']
-
-      puts
-      puts gem_name.upcase.yellow.bold
-      puts '—'.yellow.bold * gem_name.length
-      puts '⤷ Authors: '.green.bold             + authors
-      puts '⤷ Info: '.green.bold                + info
-      puts '⤷ Downloads: '.green.bold           + downloads.to_s
-      puts '⤷ Version: '.green.bold             + version
-      puts '⤷ Gem page: '.green.bold            + gem_page
-      puts '⤷ Homepage: '.green.bold            + homepage
-
-      unless dependencies['runtime'].empty? and dependencies['runtime'].empty?      
-        if options[:dependencies]
-          puts "⤷ Dependencies".yellow.bold
-          unless dependencies['runtime'].empty?
-            puts "\s⤷ Runtime dependencies".yellow.bold
-            dependencies['runtime'].each do |dep|
-              puts "\s\s⤷ #{dep['name']} ".green.bold + dep['requirements']
-            end
-          end
-          unless dependencies['development'].empty?
-            puts "\s⤷ Development dependencies".yellow.bold
-            dependencies['development'].each do |dep|
-              puts "\s\s⤷ #{dep['name']} ".green.bold + dep['requirements']
-            end
-          end
-        end
-      else
-        puts "\s⤷ No dependencies".yellow.bold if options[:dependencies]
-      end
-      puts
+      display_gem_info(false, options[:dependencies], gem)
     end
 
     desc 'about', 'Displays version number and information.'
+    # Displays information about the local TMG gem such as:
+    # version, author, developer twitter profile and blog, and a banner.
     def about
       puts Tmg::BANNER.bold.red
       puts 'version: '.bold + Tmg::VERSION.green

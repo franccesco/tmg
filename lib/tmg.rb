@@ -17,5 +17,7 @@ module Tmg
 
     File.open("#{outdir}/#{outfile}", "w") { |file| file.write(yaml) }
     FileUtils.chmod 0600, "#{outdir}/#{outfile}"
+    api_key = YAML.load_file("#{outdir}/#{outfile}")
+    Gems.configure { |config| config.key = api_key[:rubygems_api_key] }
   end
 end
