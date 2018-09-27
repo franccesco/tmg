@@ -3,6 +3,8 @@ require 'thor'
 require 'gems'
 require 'colorize'
 
+trap('INT') { puts "\nAborted".red.bold; exit }
+
 module Tmg
   class CLI < Thor
     default_task :list
@@ -29,15 +31,29 @@ module Tmg
 
     desc 'login', 'Request access to RubyGems.org'
     def login
+      credentials_file = "#{Dir.home}/.gem/credentials"
+      if File.file?(credentials_file)
+        puts 'Credentials file found!'.bold
+        unless yes?("Overwrite #{credentials_file}? |no|".bold.yellow)
+          puts "Aborted.".red.bold
+          exit          
+        end
+      end
+
       puts 'Write your username and password for ' + 'RubyGems.org'.yellow.bold
       username = ask('Username:'.yellow.bold)
       password = ask('Password:'.yellow.bold, echo: false)
       (puts "Aborted.".red.bold; exit) if password.empty?
       puts '*'.green * username.length
 
-      Tmg.write_credentials(username, password)
+      begin
+        Tmg.write_credentials(username, password)
+      rescue RuntimeError => e
+        puts 'Access Denied.'.red.bold
+      else
+        puts "Credentials written to #{credentials_file}".green.bold
+      end
 
-      puts '⤷ Done.'.green.bold
     end
 
     desc 'info [GEM]', 'Shows information about a specific gem.'
