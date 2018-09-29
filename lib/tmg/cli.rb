@@ -24,14 +24,22 @@ module Tmg
 
     no_commands do
       # Non-CLI method to display gem information without duplicating code
-      # on the other CLI methods.
-      def display_gem_info(mygems = true, deps = false, gems = nil, user = nil)
+      # on the other CLI methods. Exits if no gems or users where found.
+      def display_gem_info(mygems = true, deps = false, ugem = nil, user = nil)
+        no_gems = 'Your profile as no gems.'.red.bold if mygems
+        no_user = 'User '.red.bold + user.yellow.bold + \
+                  ' not found.'.red.bold if user
+        no_gem  = 'Gem '.red.bold + ugem.yellow.bold + \
+                  ' not found.'.red.bold if ugem
         if mygems
           gems = Gems.gems
+          (puts no_gems_msg; exit ) if gems.empty?
         elsif user
           gems = Gems.gems(user)
+          (puts no_user; exit) if gems.include? 'error'
         else
-          gems = [Gems.info(gems)]
+          gems = [Gems.info(ugem)]
+          (puts no_gem; exit) if gems[0].empty?
         end
 
         gems.each do |gem|
@@ -154,22 +162,52 @@ module Tmg
                   aliases: '-d',
                   type: :boolean,
                   desc: 'Show dependencies.'
-    # Displayes the gems that belongs to another user, optionally flag
+    # Displays the gems that belongs to another user, optionally flag
     # the dependencies (runtime and development)
     def user(username)
       display_gem_info(false, options[:dependencies], nil, username)
     end
 
+    desc 'version [gems]', 'Displays latest version of gems.'
+    method_option 'invalid',
+                  aliases: '-i',
+                  type: :boolean,
+                  desc: 'Show invalid gems.'
+    # Displays the latest versions of gems
+    def version(*gems)
+      gems_versions = {}
+      gems.each do |gem_name|
+        version = Gems.latest_version(gem_name)['version']
+        unless options[:invalid]
+          next if version == 'unknown'
+        end
+        gems_versions[gem_name] = version
+      end
+
+      header = 'Gem version'
+      puts
+      puts header.upcase.yellow.bold
+      puts '—'.yellow.bold * header.length
+      gems_versions.each do |gem_name, version|
+        unless version == 'unknown'
+          puts '⤷ '.green.bold + gem_name.bold + '→ '.green.bold + version.green
+        else
+          puts "⤷ #{gem_name} → ".red.bold + version.yellow
+        end
+      end
+      puts
+    end
+
     desc 'about', 'Displays version number and information.'
-    # Displays information about the local TMG gem such as:
+    # Displays information about the installed TMG gem such as:
     # version, author, developer twitter profile and blog, and a banner.
     def about
       puts Tmg::BANNER.bold.red
-      puts 'version: '.bold + Tmg::VERSION.green
-      puts 'author: '.bold + 'Franccesco Orozco'.green
-      puts 'Twitter: '.bold + '@__franccesco'.green
-      puts 'homepage: '.bold + 'https://github.com/franccesco/tmg'.green
-      puts 'learn more: '.bold + 'https://codingdose.info'.green
+      puts 'version: '.bold     + Tmg::VERSION.green
+      puts 'author: '.bold      + 'Franccesco Orozco'.green
+      puts 'Twitter: '.bold     + '@__franccesco'.green
+      puts 'homepage: '.bold    + 'https://github.com/franccesco/tmg'.green
+      puts 'learn more: '.bold  + 'https://codingdose.info'.green
       puts # extra line, somehow I like them.
     end
   end
