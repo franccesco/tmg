@@ -24,14 +24,22 @@ module Tmg
 
     no_commands do
       # Non-CLI method to display gem information without duplicating code
-      # on the other CLI methods.
-      def display_gem_info(mygems = true, deps = false, gems = nil, user = nil)
+      # on the other CLI methods. Exits if no gems or users where found.
+      def display_gem_info(mygems = true, deps = false, ugem = nil, user = nil)
+        no_gems = 'Your profile as no gems.'.red.bold if mygems
+        no_user = 'User '.red.bold + user.yellow.bold + \
+                  ' not found.'.red.bold if user
+        no_gem  = 'Gem '.red.bold + ugem.yellow.bold + \
+                  ' not found.'.red.bold if ugem
         if mygems
           gems = Gems.gems
+          (puts no_gems_msg; exit ) if gems.empty?
         elsif user
           gems = Gems.gems(user)
+          (puts no_user; exit) if gems.include? 'error'
         else
-          gems = [Gems.info(gems)]
+          gems = [Gems.info(ugem)]
+          (puts no_gem; exit) if gems[0].empty?
         end
 
         gems.each do |gem|
@@ -154,10 +162,16 @@ module Tmg
                   aliases: '-d',
                   type: :boolean,
                   desc: 'Show dependencies.'
-    # Displayes the gems that belongs to another user, optionally flag
+    # Displays the gems that belongs to another user, optionally flag
     # the dependencies (runtime and development)
     def user(username)
       display_gem_info(false, options[:dependencies], nil, username)
+    end
+
+    desc 'version [gems]', 'Displays latest version of gems.'
+    # Displays the latest versions of gems
+    def version(*gems)
+      puts 'TODO.'
     end
 
     desc 'about', 'Displays version number and information.'
