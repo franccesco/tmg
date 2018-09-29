@@ -169,21 +169,45 @@ module Tmg
     end
 
     desc 'version [gems]', 'Displays latest version of gems.'
+    method_option 'invalid',
+                  aliases: '-i',
+                  type: :boolean,
+                  desc: 'Show invalid gems.'
     # Displays the latest versions of gems
     def version(*gems)
-      puts 'TODO.'
+      gems_versions = {}
+      gems.each do |gem_name|
+        version = Gems.latest_version(gem_name)['version']
+        unless options[:invalid]
+          next if version == 'unknown'
+        end
+        gems_versions[gem_name] = version
+      end
+
+      header = 'Gem version'
+      puts
+      puts header.upcase.yellow.bold
+      puts '—'.yellow.bold * header.length
+      gems_versions.each do |gem_name, version|
+        unless version == 'unknown'
+          puts '⤷ '.green.bold + gem_name.bold + '→ '.green.bold + version.green
+        else
+          puts "⤷ #{gem_name} → ".red.bold + version.yellow
+        end
+      end
+      puts
     end
 
     desc 'about', 'Displays version number and information.'
-    # Displays information about the local TMG gem such as:
+    # Displays information about the installed TMG gem such as:
     # version, author, developer twitter profile and blog, and a banner.
     def about
       puts Tmg::BANNER.bold.red
-      puts 'version: '.bold + Tmg::VERSION.green
-      puts 'author: '.bold + 'Franccesco Orozco'.green
-      puts 'Twitter: '.bold + '@__franccesco'.green
-      puts 'homepage: '.bold + 'https://github.com/franccesco/tmg'.green
-      puts 'learn more: '.bold + 'https://codingdose.info'.green
+      puts 'version: '.bold     + Tmg::VERSION.green
+      puts 'author: '.bold      + 'Franccesco Orozco'.green
+      puts 'Twitter: '.bold     + '@__franccesco'.green
+      puts 'homepage: '.bold    + 'https://github.com/franccesco/tmg'.green
+      puts 'learn more: '.bold  + 'https://codingdose.info'.green
       puts # extra line, somehow I like them.
     end
   end
