@@ -190,7 +190,7 @@ module Tmg
       puts '—'.yellow.bold * header.length
       gems_versions.each do |gem_name, version|
         unless version == 'unknown'
-          puts '⤷ '.green.bold + gem_name.bold + '→ '.green.bold + version.green
+          puts '⤷ '.green.bold + gem_name.bold + ' → '.green.bold + version.green
         else
           puts "⤷ #{gem_name} → ".red.bold + version.yellow
         end
