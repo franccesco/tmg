@@ -62,7 +62,7 @@ module Tmg
           puts '⤷ Downloads: '.green.bold + downloads.to_s
           puts '⤷ Version: '.green.bold   + version
           puts '⤷ Gem page: '.green.bold  + gem_page unless mygems
-          puts '⤷ Homepage: '.green.bold  + homepage if homepage_uri
+          puts '⤷ Homepage: '.green.bold  + homepage if homepage
 
           next unless deps
 

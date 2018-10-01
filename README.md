@@ -1,22 +1,10 @@
 # Tmg
 
-Welcome to your new gem! In this directory, you'll find the files you need to be able to package up your Ruby library into a gem. Put your Ruby code in the file `lib/tmg`. To experiment with that code, run `bin/console` for an interactive prompt.
-
-TODO: Delete this and the text above, and describe your gem
+A CLI built in Ruby to track your gems stats on RubyGems.org. This is mostly a personal project to keep track of my gems and also to checkout the latest version information of another gem. I grew tired of going to the rubygems.org website or the github repo of a project to check what's the latest version of a gem to add it to my project.
 
 ## Installation
 
-Add this line to your application's Gemfile:
-
-```ruby
-gem 'tmg'
-```
-
-And then execute:
-
-    $ bundle
-
-Or install it yourself as:
+Install it yourself as:
 
     $ gem install tmg
 
