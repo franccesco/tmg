@@ -1,8 +1,7 @@
 # Tmg
+A CLI built in Ruby to track your gems stats on RubyGems.org.
 
-A CLI built in Ruby to track your gems stats on RubyGems.org. This is mostly a personal project to keep track of my gems and also to checkout the latest version information of another gem. I grew tired of going to the rubygems.org website or the github repo of a project to check what's the latest version of a gem to add it to my project.
-
-![About](assets/tmg_list.gif)
+This is mostly a personal project to **keep track of my gems** and also to **checkout the latest version information of another gem.** I grew tired of going to the rubygems.org website or the github repo of a project to check what's the latest version of a gem to add it to my project.
 
 ## Installation
 
