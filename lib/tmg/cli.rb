@@ -33,7 +33,7 @@ module Tmg
                   ' not found.'.red.bold if ugem
         if mygems
           gems = Gems.gems
-          (puts no_gems_msg; exit ) if gems.empty?
+          (puts no_gems; exit ) if gems.empty?
         elsif user
           gems = Gems.gems(user)
           (puts no_user; exit) if gems.include? 'error'
@@ -86,6 +86,7 @@ module Tmg
             end
           end
         end
+        puts
       end
     end
 
