@@ -1,38 +1,44 @@
 # Tmg
 
-Welcome to your new gem! In this directory, you'll find the files you need to be able to package up your Ruby library into a gem. Put your Ruby code in the file `lib/tmg`. To experiment with that code, run `bin/console` for an interactive prompt.
+A CLI built in Ruby to track your gems stats on RubyGems.org. This is mostly a personal project to keep track of my gems and also to checkout the latest version information of another gem. I grew tired of going to the rubygems.org website or the github repo of a project to check what's the latest version of a gem to add it to my project.
 
-TODO: Delete this and the text above, and describe your gem
+![About](assets/tmg_list.gif)
 
 ## Installation
 
-Add this line to your application's Gemfile:
-
-```ruby
-gem 'tmg'
-```
-
-And then execute:
-
-    $ bundle
-
-Or install it yourself as:
+Install it yourself as:
 
     $ gem install tmg
 
 ## Usage
+![TMG Usage](assets/tmg_usage.gif)
 
-TODO: Write usage instructions here
+### Login to RubyGems.org
+First you have to login to the RubyGems.org repository with:
+
+    $ tmg login
+
+Input your username and password and you should good to go.
+
+### Commands
+```sh
+$ tmg help
+Commands:
+  tmg about            # Displays version number and information.
+  tmg help [COMMAND]   # Describe available commands or one specific command
+  tmg info [GEM]       # Shows information about a specific gem.
+  tmg list             # Show a list of your published gems.
+  tmg login            # Request access to RubyGems.org
+  tmg user [USERNAME]  # Shows gems owned by another username
+  tmg version [gems]   # Displays latest version of gems.
+```
 
 ## Development
-
-After checking out the repo, run `bin/setup` to install dependencies. Then, run `rake test` to run the tests. You can also run `bin/console` for an interactive prompt that will allow you to experiment.
-
-To install this gem onto your local machine, run `bundle exec rake install`. To release a new version, update the version number in `version.rb`, and then run `bundle exec rake release`, which will create a git tag for the version, push git commits and tags, and push the `.gem` file to [rubygems.org](https://rubygems.org).
+If you're interested and want to invest your time in this project you can fork the repository and submit changes to the **develop** branch!
 
 ## Contributing
 
-Bug reports and pull requests are welcome on GitHub at https://github.com/[USERNAME]/tmg. This project is intended to be a safe, welcoming space for collaboration, and contributors are expected to adhere to the [Contributor Covenant](http://contributor-covenant.org) code of conduct.
+Bug reports and pull requests are welcome on GitHub at https://github.com/franccesco/tmg. This project is intended to be a safe, welcoming space for collaboration, and contributors are expected to adhere to the [Contributor Covenant](http://contributor-covenant.org) code of conduct.
 
 ## License
 
@@ -41,3 +47,5 @@ The gem is available as open source under the terms of the [MIT License](https:/
 ## Code of Conduct
 
 Everyone interacting in the Tmg project’s codebases, issue trackers, chat rooms and mailing lists is expected to follow the [code of conduct](https://github.com/[USERNAME]/tmg/blob/master/CODE_OF_CONDUCT.md).
+
+![About](assets/tmg_about.png)

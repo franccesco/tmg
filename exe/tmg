@@ -1,0 +1,4 @@
+#!/usr/bin/env ruby
+require 'tmg/cli'
+
+Tmg::CLI.start
