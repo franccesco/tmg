@@ -179,11 +179,9 @@ module Tmg
       (puts 'No gems provided'.red.bold; exit ) if gems.empty?
       gems_versions = {}
       gems.each do |gem_name|
-        version = Gems.latest_version(gem_name)['version']
-        unless options[:invalid]
-          next if version == 'unknown'
-        end
-        gems_versions[gem_name] = version
+        gems_versions[gem_name] = Thread.new {
+          Thread.current[gem_name] = Gems.latest_version(gem_name)['version']
+        }
       end
 
       header = 'Gem version'
@@ -191,10 +189,11 @@ module Tmg
       puts header.upcase.yellow.bold
       puts '—'.yellow.bold * header.length
       gems_versions.each do |gem_name, version|
-        if version != 'unknown'
-          puts '⤷ '.green.bold + gem_name.bold + ' → '.green.bold + version.green
+        version.join
+        if version[gem_name] != 'unknown'
+          puts '⤷ '.green.bold + gem_name.bold + ' → '.green.bold + version[gem_name].green
         else
-          puts "⤷ #{gem_name} → ".red.bold + version.yellow
+          puts "⤷ #{gem_name} → ".red.bold + version[gem_name].yellow
         end
       end
       puts
