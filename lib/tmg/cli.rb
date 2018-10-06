@@ -56,13 +56,12 @@ module Tmg
 
           puts
           puts gem_name.upcase.yellow.bold
-          puts '—'.yellow.bold * gem_name.length
-          puts '⤷ Authors: '.green.bold   + authors unless mygems
-          puts '⤷ Info: '.green.bold      + info
-          puts '⤷ Downloads: '.green.bold + downloads.to_s
-          puts '⤷ Version: '.green.bold   + version
-          puts '⤷ Gem page: '.green.bold  + gem_page unless mygems
-          puts '⤷ Homepage: '.green.bold  + homepage if homepage
+          puts '- Authors: '.green.bold   + authors unless mygems
+          puts '- Info: '.green.bold      + info
+          puts '- Downloads: '.green.bold + downloads.to_s
+          puts '- Version: '.green.bold   + version
+          puts '- Gem page: '.green.bold  + gem_page unless mygems
+          puts '- Homepage: '.green.bold  + homepage if homepage
 
           next unless deps
 
@@ -75,14 +74,14 @@ module Tmg
             puts "\s⤷ Runtime dependencies".yellow.bold
 
             dependencies['runtime'].each do |dep|
-              puts "\s\s⤷ #{dep['name']} ".green.bold + dep['requirements']
+              puts "\s\s⤷ #{dep['name']} ➜ ".green.bold + dep['requirements'][3..-1]
             end
           end
           unless development_deps.empty?
             puts "\s⤷ Development dependencies".yellow.bold
 
             dependencies['development'].each do |dep|
-              puts "\s\s⤷ #{dep['name']} ".green.bold + dep['requirements']
+              puts "\s\s⤷ #{dep['name']} ➜ ".green.bold + dep['requirements'][3..-1]
             end
           end
         end
