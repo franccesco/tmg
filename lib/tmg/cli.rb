@@ -74,14 +74,14 @@ module Tmg
             puts "\s⤷ Runtime dependencies".yellow.bold
 
             dependencies['runtime'].each do |dep|
-              puts "\s\s⤷ #{dep['name']} ➜ ".green.bold + dep['requirements'][3..-1]
+              puts "\s\s⤷ #{dep['name']} → ".green.bold + dep['requirements'][3..-1]
             end
           end
           unless development_deps.empty?
             puts "\s⤷ Development dependencies".yellow.bold
 
             dependencies['development'].each do |dep|
-              puts "\s\s⤷ #{dep['name']} ➜ ".green.bold + dep['requirements'][3..-1]
+              puts "\s\s⤷ #{dep['name']} → ".green.bold + dep['requirements'][3..-1]
             end
           end
         end
@@ -183,16 +183,13 @@ module Tmg
         }
       end
 
-      header = 'Gem version'
-      puts
-      puts header.upcase.yellow.bold
-      puts '—'.yellow.bold * header.length
+      puts "\nGems:".upcase.yellow.bold
       gems_versions.each do |gem_name, version|
         version.join
         if version[gem_name] != 'unknown'
-          puts '⤷ '.green.bold + gem_name.bold + ' → '.green.bold + version[gem_name].green
+          puts '✔ '.green.bold + gem_name.bold + ' → '.green.bold + version[gem_name].green
         else
-          puts "⤷ #{gem_name} → ".red.bold + version[gem_name].yellow
+          puts "✘ #{gem_name} → ".red.bold + version[gem_name].yellow if options[:invalid]
         end
       end
       puts
