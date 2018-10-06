@@ -56,13 +56,12 @@ module Tmg
 
           puts
           puts gem_name.upcase.yellow.bold
-          puts '—'.yellow.bold * gem_name.length
-          puts '⤷ Authors: '.green.bold   + authors unless mygems
-          puts '⤷ Info: '.green.bold      + info
-          puts '⤷ Downloads: '.green.bold + downloads.to_s
-          puts '⤷ Version: '.green.bold   + version
-          puts '⤷ Gem page: '.green.bold  + gem_page unless mygems
-          puts '⤷ Homepage: '.green.bold  + homepage if homepage
+          puts '- Authors: '.green.bold   + authors unless mygems
+          puts '- Info: '.green.bold      + info
+          puts '- Downloads: '.green.bold + downloads.to_s
+          puts '- Version: '.green.bold   + version
+          puts '- Gem page: '.green.bold  + gem_page unless mygems
+          puts '- Homepage: '.green.bold  + homepage if homepage
 
           next unless deps
 
@@ -75,14 +74,14 @@ module Tmg
             puts "\s⤷ Runtime dependencies".yellow.bold
 
             dependencies['runtime'].each do |dep|
-              puts "\s\s⤷ #{dep['name']} ".green.bold + dep['requirements']
+              puts "\s\s⤷ #{dep['name']} → ".green.bold + dep['requirements'][3..-1]
             end
           end
           unless development_deps.empty?
             puts "\s⤷ Development dependencies".yellow.bold
 
             dependencies['development'].each do |dep|
-              puts "\s\s⤷ #{dep['name']} ".green.bold + dep['requirements']
+              puts "\s\s⤷ #{dep['name']} → ".green.bold + dep['requirements'][3..-1]
             end
           end
         end
@@ -179,22 +178,18 @@ module Tmg
       (puts 'No gems provided'.red.bold; exit ) if gems.empty?
       gems_versions = {}
       gems.each do |gem_name|
-        version = Gems.latest_version(gem_name)['version']
-        unless options[:invalid]
-          next if version == 'unknown'
-        end
-        gems_versions[gem_name] = version
+        gems_versions[gem_name] = Thread.new {
+          Thread.current[gem_name] = Gems.latest_version(gem_name)['version']
+        }
       end
 
-      header = 'Gem version'
-      puts
-      puts header.upcase.yellow.bold
-      puts '—'.yellow.bold * header.length
+      puts "\nGems:".upcase.yellow.bold
       gems_versions.each do |gem_name, version|
-        if version != 'unknown'
-          puts '⤷ '.green.bold + gem_name.bold + ' → '.green.bold + version.green
+        version.join
+        if version[gem_name] != 'unknown'
+          puts '✔ '.green.bold + gem_name.bold + ' → '.green.bold + version[gem_name].green
         else
-          puts "⤷ #{gem_name} → ".red.bold + version.yellow
+          puts "✘ #{gem_name} → ".red.bold + version[gem_name].yellow if options[:invalid]
         end
       end
       puts
