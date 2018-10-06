@@ -2,6 +2,7 @@ require 'tmg'
 require 'thor'
 require 'gems'
 require 'colorize'
+require 'launchy'
 
 trap('INT') { puts "\nAborted".red.bold; exit }
 
@@ -206,6 +207,45 @@ module Tmg
       puts 'homepage: '.bold    + 'https://github.com/franccesco/tmg'.green
       puts 'learn more: '.bold  + 'https://codingdose.info'.green
       puts # extra line, somehow I like them.
+    end
+
+    desc 'homepage', 'Open browser to gem\' homepage'
+    # Open browser and navigates to gem's homepage
+    def homepage(gem)
+      homepage_uri = Gems.info(gem)['homepage_uri']
+      if homepage_uri.nil?
+        puts "No homepage for ".red.bold + gem.yellow.bold
+        exit(1)
+      else
+        puts 'Opening homepage of: '.green.bold + gem
+        Launchy.open(homepage_uri)
+      end
+    end
+
+    desc 'documentation', 'Open browser to gem\'s documentation'
+    # Open browser and navigates to gem's documentation
+    def documentation(gem)
+      documentation_uri = Gems.info(gem)['documentation_uri']
+      if documentation_uri.nil?
+        puts "No documentation page for ".red.bold + gem.yellow.bold
+        exit(1)
+      else
+        puts 'Opening documentation for: '.green.bold + gem
+        Launchy.open(documentation_uri)
+      end
+    end
+
+    desc 'wiki', 'Open browser to gem\'s wiki'
+    # Open browser and navigates to gem's wiki
+    def wiki(gem)
+      wiki_uri = Gems.info(gem)['wiki_uri']
+      if wiki_uri.nil? || wiki_uri.empty?
+        puts "No wiki page for ".red.bold + gem.yellow.bold
+        exit(1)
+      else
+        puts 'Opening wiki for: '.green.bold + gem
+        Launchy.open(wiki_uri)
+      end
     end
   end
 end
