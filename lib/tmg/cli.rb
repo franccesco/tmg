@@ -209,7 +209,7 @@ module Tmg
       puts # extra line, somehow I like them.
     end
 
-    desc 'homepage', 'Open browser to gem\' homepage'
+    desc 'homepage', 'Open browser to gem\'s homepage'
     # Open browser and navigates to gem's homepage
     def homepage(gem)
       homepage_uri = Gems.info(gem)['homepage_uri']
