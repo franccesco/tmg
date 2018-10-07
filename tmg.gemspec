@@ -13,7 +13,7 @@ Gem::Specification.new do |spec|
   spec.homepage      = "https://github.com/franccesco/tmg"
   spec.license       = "MIT"
   spec.metadata      = {
-    "wiki_uri":   "https://github.com/franccesco/dmp/wiki"
+    "wiki_uri"       => "https://github.com/franccesco/dmp/wiki"
   }
 
   # Specify which files should be added to the gem when it is released.
