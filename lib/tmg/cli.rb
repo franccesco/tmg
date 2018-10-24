@@ -4,6 +4,17 @@ require 'gems'
 require 'colorize'
 require 'launchy'
 
+# CLI modules
+require 'tmg/cli/about'
+require 'tmg/cli/list'
+require 'tmg/cli/login'
+require 'tmg/cli/info'
+require 'tmg/cli/user'
+require 'tmg/cli/version'
+require 'tmg/cli/homepage'
+require 'tmg/cli/documentation'
+require 'tmg/cli/wiki'
+
 trap('INT') { puts "\nAborted".red.bold; exit }
 
 module Tmg
@@ -87,164 +98,6 @@ module Tmg
           end
         end
         puts
-      end
-    end
-
-    desc 'list', 'Show a list of your published gems.'
-    method_option :dependencies,
-                  aliases: '-d',
-                  type: :boolean,
-                  desc: 'Show dependencies.'
-    # Shows a list of your gems published on RubyGems.org
-    # If forces you to login first if it's unable to find the credentials
-    # under your home folder. After that, it retrieves a summary consisting
-    # in the most relevant information only such as info, downloads, version,
-    # and homepage.
-    def list
-      unless File.file?(@@credentials_file)
-        login
-      end
-      display_gem_info(true, options[:dependencies])
-    end
-
-    desc 'login', 'Request access to RubyGems.org'
-    # Retrieves the API key for the user and writes it to ~/.gem/credentials.
-    # It also makes sure to set the permissions to 0600 as adviced on the
-    # RubyGems.org webpage. If the credentials file is on the system,
-    # then it should warn the user before overwriting the file.
-    def login
-      # check if file credential exists
-      if File.file?(@@credentials_file)
-        puts 'Credentials file found!'.bold
-        unless yes?("Overwrite #{@@credentials_file}? |no|".bold.yellow)
-          puts "Aborted.".red.bold
-          exit
-        end
-      end
-
-      # Ask for username and password, mask the password and make it
-      # green if it's the correct password, red if the access was denied.
-      # Aborts if the password is empty.
-      puts 'Write your username and password for ' + 'RubyGems.org'.yellow.bold
-      username = ask('Username:'.yellow.bold)
-      password = ask('Password:'.yellow.bold, echo: false)
-      (puts "Aborted.".red.bold; exit) if password.empty?
-
-      # fakes a masked password as long as the username,
-      # for style purposes only.
-      masked_password = '*' * username.length
-      print masked_password unless options[:show_password]
-
-      begin
-        Tmg.write_credentials(username, password)
-      rescue RuntimeError
-        puts "\b" * masked_password.length + masked_password.red.bold
-        puts 'Access Denied.'.red.bold
-        exit
-      else
-        puts "\b" * masked_password.length + masked_password.green.bold
-        puts "Credentials written to #{@@credentials_file}".green.bold
-      end
-    end
-
-    desc 'info [GEM]', 'Shows information about a specific gem.'
-    method_option :dependencies,
-                  aliases: '-d',
-                  type: :boolean,
-                  desc: 'Show dependencies.'
-    # Displays information about a gem, optionally displaying
-    # runtime dependencies and development dependencies.
-    def info(gem)
-      display_gem_info(false, options[:dependencies], gem)
-    end
-
-    desc 'user [USERNAME]', 'Shows gems owned by another username'
-    method_option :dependencies,
-                  aliases: '-d',
-                  type: :boolean,
-                  desc: 'Show dependencies.'
-    # Displays the gems that belongs to another user, optionally flag
-    # the dependencies (runtime and development)
-    def user(username)
-      display_gem_info(false, options[:dependencies], nil, username)
-    end
-
-    desc 'version [gems]', 'Displays latest version of gems.'
-    method_option 'invalid',
-                  aliases: '-i',
-                  type: :boolean,
-                  desc: 'Show invalid gems.'
-    # Displays the latest versions of gems
-    def version(*gems)
-      (puts 'No gems provided'.red.bold; exit ) if gems.empty?
-      gems_versions = {}
-      gems.each do |gem_name|
-        gems_versions[gem_name] = Thread.new {
-          Thread.current[gem_name] = Gems.latest_version(gem_name)['version']
-        }
-      end
-
-      puts "\nGems:".upcase.yellow.bold
-      gems_versions.each do |gem_name, version|
-        version.join
-        if version[gem_name] != 'unknown'
-          puts '✔ '.green.bold + gem_name.bold + ' → '.green.bold + version[gem_name].green
-        else
-          puts "✘ #{gem_name} → ".red.bold + version[gem_name].yellow if options[:invalid]
-        end
-      end
-      puts
-    end
-
-    desc 'about', 'Displays version number and information.'
-    # Displays information about the installed TMG gem such as:
-    # version, author, developer twitter profile and blog, and a banner.
-    def about
-      puts Tmg::BANNER.bold.red
-      puts 'version: '.bold     + Tmg::VERSION.green
-      puts 'author: '.bold      + 'Franccesco Orozco'.green
-      puts 'Twitter: '.bold     + '@__franccesco'.green
-      puts 'homepage: '.bold    + 'https://github.com/franccesco/tmg'.green
-      puts 'learn more: '.bold  + 'https://codingdose.info'.green
-      puts # extra line, somehow I like them.
-    end
-
-    desc 'homepage', 'Open browser to gem\'s homepage'
-    # Open browser and navigates to gem's homepage
-    def homepage(gem)
-      homepage_uri = Gems.info(gem)['homepage_uri']
-      if homepage_uri.nil?
-        puts "No homepage for ".red.bold + gem.yellow.bold
-        exit(1)
-      else
-        puts 'Opening homepage of: '.green.bold + gem
-        Launchy.open(homepage_uri)
-      end
-    end
-
-    desc 'documentation', 'Open browser to gem\'s documentation'
-    # Open browser and navigates to gem's documentation
-    def documentation(gem)
-      documentation_uri = Gems.info(gem)['documentation_uri']
-      if documentation_uri.nil?
-        puts "No documentation page for ".red.bold + gem.yellow.bold
-        exit(1)
-      else
-        puts 'Opening documentation for: '.green.bold + gem
-        Launchy.open(documentation_uri)
-      end
-    end
-
-    desc 'wiki', 'Open browser to gem\'s wiki'
-    # Open browser and navigates to gem's wiki
-    def wiki(gem)
-      wiki_uri = Gems.info(gem)['wiki_uri']
-      if wiki_uri.nil? || wiki_uri.empty?
-        puts "No wiki page for ".red.bold + gem.yellow.bold
-        exit(1)
-      else
-        puts 'Opening wiki for: '.green.bold + gem
-        Launchy.open(wiki_uri)
       end
     end
   end
