@@ -33,6 +33,9 @@ module Tmg
   class CLI < Thor
     default_task :list
     @@credentials_file = "#{Dir.home}/.gem/credentials"
+    if ENV['api_key']
+      Gems.configure { |config| config.key = ENV['api_key'] }
+    end
 
     no_commands do
       # Non-CLI method to display gem information without duplicating code
