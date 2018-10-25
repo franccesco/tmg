@@ -5,7 +5,7 @@ rvm:
 - 2.5.1
 before_install: gem install bundler -v 1.16.4
 script:
-- bundle rake test
+- bundle exec rake test
 - bundle exec cucumber features
 deploy:
   provider: rubygems
