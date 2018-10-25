@@ -1,7 +1,21 @@
----
 sudo: false
 language: ruby
 cache: bundler
 rvm:
-  - 2.5.1
+- 2.5.1
 before_install: gem install bundler -v 1.16.4
+script:
+- bundle rake test
+- bundle exec cucumber features
+deploy:
+  provider: rubygems
+  api_key:
+    secure: qhPrIx1HTfHzPaGLO6EEBL8lcHq0PCXABFy1Bdadi47dW4moE6HezVv+kzncRkAiUWdDy7MfcqQ2gM+9o90PIMwX6vePo8TaYz36O4ml62pzQQpODtvsAZCKZ2ifHNuE+83gmOQuwbutqa3cndDaXkBHu4fs7z3T7K7dnFVLymE8jq+M7RO4/4YVGELylgtG6EuetZ78bdJBAQ1sWVJBTFRHFNO1V4C+8yQm47kxXajm8z0/ItRtKlvWNidUcvjsPT/Pbe48PX9eEVzY5Q7ahWKO6he80KMfVE8sEm+jB//zJa/42zFQQ0JO8MVbOU5V2UuVdCOR7j2axis9pALpgWd40XbY2qw1Dj07HPAfNrQRfZ9Hjccy9Xl0C/mor37a4R99q6vkXAYZ+MweLpgh3HjtM9Ga23jx08AvTVppXa8v0T+kFc/LORLEGbh5SadTlz6HSna6I4yeXoaBvZQvR7apobej2XPkC44vtGWGEQY5bg/uQz5ca++QGAMdlbJfo+jCr6V5LXvh2NjGDZbjkGgn/mumDMpqlzEwRxtNQPJdstG0FKbfxRtkDeFkPSptgYzgIU85t0QKbZwRwiuRWKZZzu90LUYJ8YjUEqvTqHRer8Ra8HiMpZFHKOVv2eKbXlKvjLYbzNqTQ3Ders+OaeoeQktiZY8k1gJxQBiCHgA=
+  gem: tmg
+  on:
+    tags: true
+    repo: franccesco/tmg
+after_deploy:
+  - gem install tmg
+  - tmg info tmg -d
+  - tmg about
