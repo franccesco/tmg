@@ -63,6 +63,9 @@ module Tmg
           gem_page          = gem['project_uri']
           homepage          = gem['homepage_uri']
           dependencies      = gem['dependencies']
+          documentation     = gem['documentation_uri']
+          wiki              = gem['wiki_uri']
+          licenses          = gem['licenses']
           runtime_deps      = dependencies['runtime']
           development_deps  = dependencies['development']
 
@@ -74,6 +77,9 @@ module Tmg
           puts '- Version: '.green.bold   + version
           puts '- Gem page: '.green.bold  + gem_page unless mygems
           puts '- Homepage: '.green.bold  + homepage if homepage
+          puts '- Wiki: '.green.bold      + wiki if wiki && !wiki.empty?
+          puts '- Docs: '.green.bold      + documentation if documentation
+          puts '- Licenses: '.green.bold  + licenses.join(', ') if licenses && !licenses.empty?
 
           next unless deps
 
