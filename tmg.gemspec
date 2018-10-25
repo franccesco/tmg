@@ -12,9 +12,6 @@ Gem::Specification.new do |spec|
   spec.summary       = %q{Track your gem stats with ease!}
   spec.homepage      = "https://github.com/franccesco/tmg"
   spec.license       = "MIT"
-  spec.metadata      = {
-    "wiki_uri"       => "https://github.com/franccesco/dmp/wiki"
-  }
 
   # Specify which files should be added to the gem when it is released.
   # The `git ls-files -z` loads the files in the RubyGem that have been added into git.
