@@ -24,12 +24,15 @@ Input your username and password and you should good to go.
 $ tmg help
 Commands:
   tmg about            # Displays version number and information.
+  tmg documentation    # Open browser to gem's documentation
   tmg help [COMMAND]   # Describe available commands or one specific command
+  tmg homepage         # Open browser to gem's homepage
   tmg info [GEM]       # Shows information about a specific gem.
   tmg list             # Show a list of your published gems.
   tmg login            # Request access to RubyGems.org
   tmg user [USERNAME]  # Shows gems owned by another username
   tmg version [gems]   # Displays latest version of gems.
+  tmg wiki             # Open browser to gem's wiki
 ```
 
 ## Development
