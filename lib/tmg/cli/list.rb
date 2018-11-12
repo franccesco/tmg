@@ -12,7 +12,7 @@ module Tmg
     # and homepage.
     def list
       unless File.file?(@@credentials_file)
-        login
+        login unless ENV['api_key']
       end
       display_gem_info(true, options[:dependencies])
     end
